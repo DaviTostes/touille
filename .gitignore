@@ -1,0 +1,50 @@
+# ---- Android / Gradle ----
+.gradle/
+build/
+/captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+*.apk
+*.aab
+*.idsig
+*.hprof
+*.log
+
+# ---- Kotlin ----
+.kotlin/
+
+# ---- IDE ----
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.fleet/
+
+# ---- macOS / Windows ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Assinatura (NUNCA versionar) ----
+keystore.properties
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+keystore/
+signing/
+
+# ---- Publicação: binários grandes (os textos e assets pequenos ficam) ----
+/publishing/*.aab
+/publishing/*.apk
+/publishing/*.zip
+/publishing/screenshots/
+
+# ---- Backups e temporários ----
+*.bak
+*.orig
+*.rej
+*.tmp
