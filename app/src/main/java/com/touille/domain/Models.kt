@@ -20,6 +20,9 @@ data class Ingredient(
     val owned: Boolean
 ) {
     fun matches(term: String): Boolean = name.containsFolded(term) || namePt.containsFolded(term)
+
+    fun matchesExactly(term: String): Boolean =
+        name.foldForSearch() == term.foldForSearch() || namePt.foldForSearch() == term.foldForSearch()
 }
 
 data class RecipeIngredient(

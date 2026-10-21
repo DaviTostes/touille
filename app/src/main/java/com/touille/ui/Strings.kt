@@ -16,6 +16,7 @@ data class Strings(
     val tabKitchen: String,
     val tabShopping: String,
     val fridgeTitle: String,
+    val fridgeOwnedTitle: String,
     val fridgeCount: (Int) -> String,
     val fridgeProgress: (Int, Int) -> String,
     val emptyFridgeAction: String,
@@ -68,7 +69,6 @@ data class Strings(
     val addFromCatalog: String,
     val done: String,
     val selectedCount: (Int) -> String,
-    val listCount: (Int) -> String,
     val quantity: String,
     val removeItem: (String) -> String,
     val saveChanges: String,
@@ -83,12 +83,17 @@ data class Strings(
     val emptyFridgeButton: String,
     val kitchenBlurb: String,
     val languageLabel: String,
+    val appearanceLabel: String,
+    val themeSystem: String,
+    val themeLight: String,
+    val themeDark: String,
     val shoppingTitle: String,
     val shoppingHeadline: (Int, Int) -> String,
     val shoppingEmptyTitle: String,
     val shoppingEmptySubtitle: String,
-    val addItemPlaceholder: String,
-    val addItem: String,
+    val addItemAction: String,
+    val searchOrAddPlaceholder: String,
+    val addCustomItem: (String) -> String,
     val sectionToBuy: String,
     val sectionDone: String,
     val bought: String,
@@ -134,6 +139,7 @@ val EnglishStrings = Strings(
     tabKitchen = "Kitchen",
     tabShopping = "List",
     fridgeTitle = "My fridge",
+    fridgeOwnedTitle = "In the fridge",
     fridgeCount = { count ->
         when (count) {
             0 -> "Your fridge is empty — tap what you have."
@@ -202,7 +208,6 @@ val EnglishStrings = Strings(
     addFromCatalog = "Add from the catalog",
     done = "Done",
     selectedCount = { count -> if (count == 1) "1 selected" else "$count selected" },
-    listCount = { count -> if (count == 1) "1 on the list" else "$count on the list" },
     quantity = "qty",
     removeItem = { name -> "Remove $name" },
     saveChanges = "Save changes",
@@ -218,6 +223,10 @@ val EnglishStrings = Strings(
     kitchenBlurb = "Ingredients come from a fixed catalog so every recipe matches exactly. " +
         "Mark what you have, and the notebook sorts itself.",
     languageLabel = "Language",
+    appearanceLabel = "Appearance",
+    themeSystem = "System",
+    themeLight = "Light",
+    themeDark = "Dark",
     shoppingTitle = "Shopping list",
     shoppingHeadline = { toBuy, total ->
         when {
@@ -228,8 +237,9 @@ val EnglishStrings = Strings(
     },
     shoppingEmptyTitle = "Your list is empty",
     shoppingEmptySubtitle = "Add an item by hand, or let a recipe send its missing ingredients here.",
-    addItemPlaceholder = "Add an item (milk, bread…)",
-    addItem = "Add",
+    addItemAction = "Add an item",
+    searchOrAddPlaceholder = "Search or add an item",
+    addCustomItem = { name -> "Add \"$name\"" },
     sectionToBuy = "To buy",
     sectionDone = "In the cart",
     bought = "In the cart",
@@ -252,6 +262,7 @@ val PortugueseStrings = Strings(
     tabKitchen = "Cozinha",
     tabShopping = "Lista",
     fridgeTitle = "Minha geladeira",
+    fridgeOwnedTitle = "Na geladeira",
     fridgeCount = { count ->
         when (count) {
             0 -> "Sua geladeira está vazia — toque no que você tem."
@@ -320,7 +331,6 @@ val PortugueseStrings = Strings(
     addFromCatalog = "Adicionar do catálogo",
     done = "Pronto",
     selectedCount = { count -> if (count == 1) "1 selecionado" else "$count selecionados" },
-    listCount = { count -> if (count == 1) "1 na lista" else "$count na lista" },
     quantity = "qtd",
     removeItem = { name -> "Remover $name" },
     saveChanges = "Salvar alterações",
@@ -336,6 +346,10 @@ val PortugueseStrings = Strings(
     kitchenBlurb = "Os ingredientes vêm de um catálogo fixo para que cada receita bata exatamente. " +
         "Marque o que você tem e o caderno se organiza sozinho.",
     languageLabel = "Idioma",
+    appearanceLabel = "Aparência",
+    themeSystem = "Sistema",
+    themeLight = "Claro",
+    themeDark = "Escuro",
     shoppingTitle = "Lista de compras",
     shoppingHeadline = { toBuy, total ->
         when {
@@ -346,8 +360,9 @@ val PortugueseStrings = Strings(
     },
     shoppingEmptyTitle = "Sua lista está vazia",
     shoppingEmptySubtitle = "Anote um item à mão ou deixe uma receita mandar para cá os ingredientes que faltam.",
-    addItemPlaceholder = "Anotar item (leite, pão…)",
-    addItem = "Anotar",
+    addItemAction = "Anotar item",
+    searchOrAddPlaceholder = "Buscar ou anotar um item",
+    addCustomItem = { name -> "Anotar \"$name\"" },
     sectionToBuy = "Para comprar",
     sectionDone = "Já no carrinho",
     bought = "No carrinho",

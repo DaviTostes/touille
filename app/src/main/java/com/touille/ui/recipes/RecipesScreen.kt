@@ -2,17 +2,13 @@ package com.touille.ui.recipes
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -25,21 +21,16 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
@@ -51,9 +42,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -65,21 +54,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -89,19 +71,25 @@ import com.touille.domain.Recipe
 import com.touille.ui.EmptyState
 import com.touille.ui.LocalStrings
 import com.touille.ui.ScreenHeader
+import com.touille.ui.SearchOverlay
 import com.touille.ui.Strings
 import com.touille.ui.dotColor
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RecipesScreen(
     viewModel: RecipesViewModel,
     onOpenRecipe: (Long) -> Unit,
-    onAddRecipe: () -> Unit
+    onAddRecipe: () -> Unit,
+    scrollToTopSignal: Int = 0
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val strings = LocalStrings.current
+    val gridState = rememberLazyStaggeredGridState()
+
+    LaunchedEffect(scrollToTopSignal) {
+        if (scrollToTopSignal > 0) gridState.animateScrollToItem(0)
+    }
     val keyboard = LocalSoftwareKeyboardController.current
     var query by rememberSaveable { mutableStateOf(state.filters.query) }
     var searchOpen by rememberSaveable { mutableStateOf(false) }
@@ -146,10 +134,16 @@ fun RecipesScreen(
 
             LazyVerticalStaggeredGrid(
                 columns = StaggeredGridCells.Fixed(2),
+                state = gridState,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
-                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 14.dp, bottom = 112.dp),
+                contentPadding = PaddingValues(
+                    start = 20.dp,
+                    end = 20.dp,
+                    top = 14.dp,
+                    bottom = if (searchOpen) 24.dp else 112.dp
+                ),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalItemSpacing = 12.dp
             ) {
@@ -251,138 +245,19 @@ fun RecipesScreen(
             }
         }
 
-        AnimatedVisibility(
-            visible = searchOpen,
-            enter = fadeIn(tween(120)),
-            exit = fadeOut(tween(160))
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.22f))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = { closeSearch() }
-                    )
-            )
-        }
-
-        if (searchOpen) {
-            val horizontalMargin = 20.dp
-            val barHeight = 56.dp
-            val contentWidth: androidx.compose.ui.unit.Dp = maxWidth
-            val endWidth = contentWidth - horizontalMargin * 2
-            val endX = with(density) { horizontalMargin.toPx() }
-            val startX = with(density) { (contentWidth - horizontalMargin - barHeight).toPx() }
-            val endY = headerHeight + with(density) { 6.dp.toPx() }
-            val startY = screenHeightPx - with(density) { (horizontalMargin + barHeight).toPx() }
-
-            val progress = remember { Animatable(1f) }
-            LaunchedEffect(Unit) {
-                progress.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(durationMillis = 380, easing = FastOutSlowInEasing)
-                )
-            }
-            val expansion = 1f - progress.value
-
-            SearchBar(
-                query = query,
-                onQueryChange = {
-                    query = it
-                    viewModel.onQueryChange(it)
-                },
-                onClose = { closeSearch() },
-                expansion = expansion,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .offset {
-                        IntOffset(
-                            x = (startX + (endX - startX) * expansion).roundToInt(),
-                            y = (startY + (endY - startY) * expansion).roundToInt()
-                        )
-                    }
-                    .width(lerp(barHeight, endWidth, expansion))
-            )
-        }
-    }
-}
-
-@Composable
-private fun SearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    onClose: () -> Unit,
-    expansion: Float,
-    modifier: Modifier = Modifier
-) {
-    val strings = LocalStrings.current
-    val focusRequester = remember { FocusRequester() }
-    val keyboard = LocalSoftwareKeyboardController.current
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        keyboard?.show()
-    }
-
-    val fieldAlpha = ((expansion - 0.12f) / 0.4f).coerceIn(0f, 1f)
-    val closeAlpha = ((expansion - 0.55f) / 0.35f).coerceIn(0f, 1f)
-
-    Surface(
-        modifier = modifier.height(56.dp),
-        shape = RoundedCornerShape(lerp(28.dp, 18.dp, expansion)),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        tonalElevation = 3.dp,
-        shadowElevation = 10.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 16.dp, end = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Icon(
-                Icons.Outlined.Search,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            BasicTextField(
-                value = query,
-                onValueChange = onQueryChange,
-                modifier = Modifier
-                    .weight(1f)
-                    .alpha(fieldAlpha)
-                    .focusRequester(focusRequester),
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
-                decorationBox = { innerTextField ->
-                    if (query.isEmpty()) {
-                        Text(
-                            strings.searchRecipes,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    innerTextField()
-                }
-            )
-            if (closeAlpha > 0f) {
-                IconButton(onClick = onClose, modifier = Modifier.alpha(closeAlpha)) {
-                    Icon(
-                        Icons.Outlined.Close,
-                        contentDescription = strings.back,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
+        SearchOverlay(
+            expanded = searchOpen,
+            query = query,
+            onQueryChange = {
+                query = it
+                viewModel.onQueryChange(it)
+            },
+            onClose = { closeSearch() },
+            placeholder = strings.searchRecipes,
+            headerHeightPx = headerHeight,
+            screenHeightPx = screenHeightPx,
+            contentWidth = maxWidth
+        )
     }
 }
 

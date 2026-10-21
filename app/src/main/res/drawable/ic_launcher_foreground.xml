@@ -1,15 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- Toque: three puffs plus the band -->
     <path
         android:fillColor="#FAF5EE"
-        android:pathData="M38,34h32v6h-32z" />
+        android:pathData="M27,41a11,11 0 1,0 22,0a11,11 0 1,0 -22,0z" />
     <path
         android:fillColor="#FAF5EE"
-        android:pathData="M42,42h24v22a12,12 0 0,1 -24,0z" />
+        android:pathData="M41,35a13,13 0 1,0 26,0a13,13 0 1,0 -26,0z" />
     <path
         android:fillColor="#FAF5EE"
-        android:pathData="M50,20h8v14h-8z" />
+        android:pathData="M59,41a11,11 0 1,0 22,0a11,11 0 1,0 -22,0z" />
+    <path
+        android:fillColor="#FAF5EE"
+        android:pathData="M33,44h42v7a4,4 0 0,1 -4,4h-34a4,4 0 0,1 -4,-4z" />
+
+    <!-- Hat rim -->
+    <path
+        android:fillColor="#EADBC8"
+        android:pathData="M33,51h42v2.5h-42z" />
+
+    <!-- Face -->
+    <path
+        android:fillColor="#E8B48C"
+        android:pathData="M34,53h40v12c0,9 -9,16 -20,16c-11,0 -20,-7 -20,-16z" />
+
+    <!-- Eyes -->
+    <path
+        android:fillColor="#3B2F27"
+        android:pathData="M42.6,61a2.4,2.4 0 1,0 4.8,0a2.4,2.4 0 1,0 -4.8,0z" />
+    <path
+        android:fillColor="#3B2F27"
+        android:pathData="M60.6,61a2.4,2.4 0 1,0 4.8,0a2.4,2.4 0 1,0 -4.8,0z" />
+
+    <!-- Moustache -->
+    <path
+        android:fillColor="#3B2F27"
+        android:pathData="M54,69C50,65 44,65 42,68C44,72 50,73 54,70Z" />
+    <path
+        android:fillColor="#3B2F27"
+        android:pathData="M54,69C58,65 64,65 66,68C64,72 58,73 54,70Z" />
 </vector>
